@@ -1,6 +1,6 @@
 ## Delaunator
 
-An incredibly fast JavaScript library for Delaunay triangulation of 2D points.
+A Kotlin port of Mapbox's Delaunator incredibly fast JavaScript library for Delaunay triangulation of 2D points. 
 
 This is a port from Mapbox's [Delaunator](https://github.com/mapbox/delaunator) Javascript library.
 
