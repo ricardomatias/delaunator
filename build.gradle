@@ -1,0 +1,66 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.netflix.nebula:nebula-publishing-plugin:17.3.0"
+        classpath "com.netflix.nebula:nebula-release-plugin:15.1.0"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.28.0"
+
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+}
+
+project.ext {
+    kotlinVersion = "1.4.21"
+}
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'kotlin'
+    apply plugin: 'nebula.contacts'
+    apply plugin: 'nebula.info'
+    apply plugin: 'nebula.maven-publish'
+
+    apply plugin: 'nebula.source-jar'
+    apply plugin: 'nebula.javadoc-jar'
+    apply plugin: "com.github.ben-manes.versions"
+
+    group 'com.github.ricardomatias'
+    version '1.0'
+
+    sourceSets {
+        main.kotlin.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += 'src/main/java'
+    }
+
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven {
+            url "https://jitpack.io"
+        }
+    }
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    contacts {
+        '@ricardomatias' {
+            moniker 'Ricardo Matias'
+            github 'ricardomatias'
+        }
+    }
+}
