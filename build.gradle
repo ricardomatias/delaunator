@@ -13,27 +13,48 @@ buildscript {
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id "com.jfrog.bintray" version "1.8.5"
+    id 'maven-publish'
 }
 
 project.ext {
     kotlinVersion = "1.4.21"
 }
 
+
+Properties properties = new Properties()
+def propertiesFile = project.rootProject.file('local.properties')
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+}
+
+tasks.create('sourceJar', Jar) {
+    dependsOn tasks.classes
+    from sourceSets.main.allSource
+    archiveClassifier.set("sources")
+    archiveExtension.set("jar")
+}
+
+tasks.create('javadocJar', Jar) {
+    dependsOn tasks.javadoc
+    from tasks.javadoc.destinationDir
+    archiveClassifier.set("javadoc")
+    archiveExtension.set("jar")
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
-    apply plugin: 'java-library'
     apply plugin: 'kotlin'
+    apply plugin: 'maven-publish'
     apply plugin: 'nebula.contacts'
     apply plugin: 'nebula.info'
     apply plugin: 'nebula.maven-publish'
 
-    apply plugin: 'nebula.source-jar'
-    apply plugin: 'nebula.javadoc-jar'
     apply plugin: "com.github.ben-manes.versions"
 
     group 'com.github.ricardomatias'
-    version '1.0'
+    version '1.0.0'
 
     sourceSets {
         main.kotlin.srcDirs += 'src/main/kotlin'
@@ -42,10 +63,10 @@ allprojects {
 
     repositories {
         jcenter()
-        mavenLocal()
         maven {
             url "https://jitpack.io"
         }
+//        mavenLocal()
     }
 
     dependencies {
@@ -55,6 +76,41 @@ allprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+
+    publishing {
+        publications {
+            delaunatorPublishing(MavenPublication) {
+                from components.java
+                artifact tasks.sourceJar
+                artifact tasks.javadocJar
+
+                groupId 'com.github.ricardomatias'
+                artifactId 'delaunator'
+                version '1.0.0'
+            }
+        }
+    }
+
+    bintray {
+        user = properties.getProperty("bintrayUser")
+        key = properties.getProperty("bintrayKey")
+        publications = ['delaunatorPublishing']
+
+        pkg {
+            repo = 'maven'
+            name = 'delaunator'
+            licenses = ['ISC']
+            userOrg = "ricardomatias"
+
+            version {
+                name = project.version
+                released = new Date()
+                vcsTag = "v${project.version}"
+                vcsUrl = 'https://github.com/ricardomatias/delaunator.git'
+            }
+        }
     }
 
     contacts {
