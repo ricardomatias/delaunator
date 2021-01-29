@@ -6,11 +6,13 @@ A Kotlin port of Mapbox's [Delaunator](https://github.com/mapbox/delaunator) inc
 
 ```graddle
 repositories {
+    maven { jcenter() }
+    // or
     maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    compile "com.github.ricardomatias:delaunator:1.0.0"
+    compile "com.github.ricardomatias:delaunator:1.0.1"
 }
 ```
 

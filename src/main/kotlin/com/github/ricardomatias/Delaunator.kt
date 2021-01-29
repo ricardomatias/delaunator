@@ -21,8 +21,11 @@ class Delaunator(val coords: DoubleArray) {
 
     // arrays that will store the triangulation graph
     val maxTriangles = (2 * count - 5).coerceAtLeast(0)
-    var triangles = IntArray(maxTriangles * 3)
-    var halfedges = IntArray(maxTriangles * 3)
+    private val _triangles = IntArray(maxTriangles * 3)
+    private val _halfedges = IntArray(maxTriangles * 3)
+
+    lateinit var triangles: IntArray
+    lateinit var halfedges: IntArray
 
     // temporary arrays for tracking the edges of the advancing convex hull
     private var hashSize = ceil(sqrt(count * 1.0)).toInt()
@@ -109,7 +112,7 @@ class Delaunator(val coords: DoubleArray) {
         var minRadius = Double.POSITIVE_INFINITY
 
         // Find the third point which forms the smallest circumcircle with the first two
-        for(i in 0 until count) {
+        for (i in 0 until count) {
             if(i == i0 || i == i1) continue
 
             val r = circumradius(i0x, i0y, i1x, i1y, coords[2 * i], coords[2 * i + 1])
@@ -309,8 +312,8 @@ class Delaunator(val coords: DoubleArray) {
         }
 
         // trim typed triangle mesh arrays
-        triangles = triangles.copyOf(trianglesLen)
-        halfedges = halfedges.copyOf(trianglesLen)
+        triangles = _triangles.copyOf(trianglesLen)
+        halfedges = _halfedges.copyOf(trianglesLen)
     }
 
     private fun legalize(a: Int): Int {
@@ -320,7 +323,7 @@ class Delaunator(val coords: DoubleArray) {
 
         // recursion eliminated with a fixed-size stack
         while (true) {
-            val b = halfedges[na]
+            val b = _halfedges[na]
 
             /* if the pair of triangles doesn't satisfy the Delaunay condition
              * (p1 is inside the circumcircle of [p0, pl, pr]), flip them,
@@ -350,10 +353,10 @@ class Delaunator(val coords: DoubleArray) {
             val al = a0 + (na + 1) % 3
             val bl = b0 + (b + 2) % 3
 
-            val p0 = triangles[ar]
-            val pr = triangles[na]
-            val pl = triangles[al]
-            val p1 = triangles[bl]
+            val p0 = _triangles[ar]
+            val pr = _triangles[na]
+            val pl = _triangles[al]
+            val p1 = _triangles[bl]
 
             val illegal = inCircle(
                 coords[2 * p0], coords[2 * p0 + 1],
@@ -362,10 +365,10 @@ class Delaunator(val coords: DoubleArray) {
                 coords[2 * p1], coords[2 * p1 + 1])
 
             if (illegal) {
-                triangles[na] = p1
-                triangles[b] = p0
+                _triangles[na] = p1
+                _triangles[b] = p0
 
-                val hbl = halfedges[bl]
+                val hbl = _halfedges[bl]
 
                 // edge swapped on the other side of the hull (rare) fix the halfedge reference
                 if (hbl == -1) {
@@ -379,7 +382,7 @@ class Delaunator(val coords: DoubleArray) {
                     } while (e != hullStart)
                 }
                 link(na, hbl)
-                link(b, halfedges[ar])
+                link(b, _halfedges[ar])
                 link(ar, bl)
 
                 val br = b0 + (b + 1) % 3
@@ -399,17 +402,17 @@ class Delaunator(val coords: DoubleArray) {
     }
 
     private fun link(a:Int, b:Int) {
-        halfedges[a] = b
-        if (b != -1) halfedges[b] = a
+        _halfedges[a] = b
+        if (b != -1) _halfedges[b] = a
     }
 
     // add a new triangle given vertex indices and adjacent half-edge ids
     private fun addTriangle(i0: Int, i1: Int, i2: Int, a: Int, b: Int, c: Int): Int {
         val t = trianglesLen
 
-        triangles[t] = i0
-        triangles[t + 1] = i1
-        triangles[t + 2] = i2
+        _triangles[t] = i0
+        _triangles[t + 1] = i1
+        _triangles[t + 2] = i2
 
         link(t, a)
         link(t + 1, b)
