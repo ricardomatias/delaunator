@@ -45,4 +45,6 @@ dependencies {
 
 ## Example
 
+You can try the following example with [OPENRNDR](https://github.com/openrndr/openrndr), source code can be found [here](https://github.com/openrndr/orx/blob/master/orx-triangulation/src/demo/kotlin/DemoDelaunay01.kt).
+
 ![example](example.png)
