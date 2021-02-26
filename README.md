@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.github.ricardomatias:delaunator:1.0.1"
+    compile "com.github.ricardomatias:delaunator:1.0.2"
 }
 ```
 
