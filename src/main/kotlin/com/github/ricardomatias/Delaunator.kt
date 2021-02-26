@@ -141,7 +141,7 @@ class Delaunator(val coords: DoubleArray) {
             for (i in 0 until count) {
                 val id = ids[i]
                 if (dists[id] > d0) {
-                    hull[j++] = id
+                    nhull[j++] = id
                     d0 = dists[id]
                 }
             }
