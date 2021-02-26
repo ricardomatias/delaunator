@@ -52,7 +52,7 @@ apply plugin: 'nebula.maven-publish'
 apply plugin: 'nebula.release'
 
 group 'com.github.ricardomatias'
-version '1.0.1'
+version '1.0.2'
 
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
