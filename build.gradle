@@ -1,113 +1,43 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "com.netflix.nebula:nebula-publishing-plugin:17.3.0"
-        classpath "com.netflix.nebula:nebula-release-plugin:15.1.0"
-
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21"
-    }
-}
-
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
-    id 'idea'
-    id 'java'
-
-    id "com.github.ben-manes.versions" version '0.28.0'
-    id "com.jfrog.bintray" version "1.8.5"
+    id 'org.jetbrains.kotlin.multiplatform' version '1.6.21'
     id 'maven-publish'
-
 }
 
-project.ext {
-    kotlinVersion = "1.4.21"
-}
-
-
-Properties properties = new Properties()
-def propertiesFile = project.rootProject.file('local.properties')
-if (propertiesFile.exists()) {
-    properties.load(propertiesFile.newDataInputStream())
-}
-
-tasks.create('sourceJar', Jar) {
-    dependsOn tasks.classes
-    from sourceSets.main.allSource
-    archiveClassifier.set("sources")
-    archiveExtension.set("jar")
-}
-
-tasks.create('javadocJar', Jar) {
-    dependsOn tasks.javadoc
-    from tasks.javadoc.destinationDir
-    archiveClassifier.set("javadoc")
-    archiveExtension.set("jar")
-}
-
-apply plugin: 'nebula.contacts'
-apply plugin: 'nebula.info'
-apply plugin: 'nebula.maven-publish'
-apply plugin: 'nebula.release'
-
-group 'com.github.ricardomatias'
-version '1.0.2'
-
-sourceSets {
-    main.kotlin.srcDirs += 'src/main/kotlin'
-    main.java.srcDirs += 'src/main/java'
-}
+group = 'com.github.jbellis'
+version = '1.0.2.1'
 
 repositories {
-    jcenter()
-    maven {
-        url "https://jitpack.io"
-    }
-    mavenLocal()
+    mavenCentral()
 }
 
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-
-publishing {
-    publications {
-        delaunatorPublishing(MavenPublication) {
-            from components.java
-            artifact tasks.sourceJar
-            artifact tasks.javadocJar
-
-            groupId(project.group)
-            artifactId 'delaunator'
-            version(project.version)
+kotlin {
+    jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = '1.8'
+        }
+        withJava()
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform()
         }
     }
-}
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                cssSupport.enabled = true
+            }
+        }
+    }
+    def hostOs = System.getProperty("os.name")
+    def isMingwX64 = hostOs.startsWith("Windows")
+    def nativeTarget
+    if (hostOs == "Mac OS X") nativeTarget = macosX64('native')
+    else if (hostOs == "Linux") nativeTarget = linuxX64("native")
+    else if (isMingwX64) nativeTarget = mingwX64("native")
+    else throw new GradleException("Host OS is not supported in Kotlin/Native.")
 
-bintray {
-    user = properties.getProperty("bintrayUser")
-    key = properties.getProperty("bintrayKey")
-    publications = ['delaunatorPublishing']
 
-    pkg {
-        repo = 'maven'
-        name = 'delaunator'
-        licenses = ['ISC']
-        userOrg = "ricardomatias"
-        publish = true
-
-        version {
-            name = project.version
-            released = new Date()
-            vcsTag = "v${project.version}"
-            vcsUrl = 'https://github.com/ricardomatias/delaunator.git'
+    sourceSets {
+        commonMain {
         }
     }
 }
